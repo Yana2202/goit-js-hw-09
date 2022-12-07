@@ -4,9 +4,7 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 const timerRef = document.querySelector('.timer');
 const inputRef = document.querySelector('#datetime-picker');
 const btnStart = document.querySelector('button[data-start]');
-
 btnStart.disabled = true;
-
 let time = null;
 
 const options = {
@@ -16,16 +14,21 @@ const options = {
   minuteIncrement: 1,
   onClose(selectedDates) {
     console.log(selectedDates[0]);
-
     if (selectedDates[0].getTime() < Date.now()) {
       Notify.failure('Please choose a date in the future');
       return;
     }
+
     btnStart.disabled = false;
     time = selectedDates[0];
-    btnStart.addEventListener('click', () => {
-      timer.start(timerRef, time);
-    });
+
+    btnStart.addEventListener(
+      'click',
+      () => {
+        timer.start(timerRef, time);
+      },
+      { once: true }
+    );
   },
 };
 flatpickr(inputRef, options);
@@ -35,18 +38,17 @@ const timer = {
   refs: {},
 
   start(rootSelector, deadline) {
-    const delta = deadline.getTime() - Date.now();
-    console.log(delta);
-
+    this.isActive = true;
     this.getRefs(rootSelector);
     this.timerId = setInterval(() => {
-      const ms = deadline.getTime() - Date.now();
+      const ms = deadline - new Date();
+
       if (ms <= 1000) {
         clearInterval(this.timerId);
       }
       const data = this.convertMs(ms);
       Object.entries(data).forEach(([name, value]) => {
-        this.refs[name].textContent = this.addLeadinZero(value);
+        this.refs[name].textContent = this.addLeadingZero(value);
       });
     }, 1000);
   },
@@ -68,7 +70,8 @@ const timer = {
     const seconds = Math.floor((((ms % day) % hour) % minute) / second);
     return { days, hours, minutes, seconds };
   },
-  addLeadinZero(value) {
+
+  addLeadingZero(value) {
     return String(value).padStart(2, '0');
   },
 };

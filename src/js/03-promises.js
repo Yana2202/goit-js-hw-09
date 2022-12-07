@@ -22,7 +22,7 @@ function onFormSubmit(event) {
   let elDelay = Number(delay.value);
   let elStep = Number(step.value);
   let elAmount = Number(amount.value);
-  for (let position = 0; position <= elAmount; position += 1) {
+  for (let position = 1; position <= elAmount; position += 1) {
     createPromise(position, elDelay)
       .then(({ position, delay }) => {
         console.log('success');
